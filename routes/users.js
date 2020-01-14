@@ -1,0 +1,42 @@
+const express = require('express');
+const router = express.Router();
+const User = require('../models/user')
+
+
+router.get('/', (req, res)=>{
+    res.send('Users are here');
+});
+
+router.post('/register', async (req,res) => {
+    let user = new User({
+        email:req.body.email,
+        password: req.body.password
+    });
+
+    try{
+        const registeredUser = await user.save();
+        res.json(registeredUser);
+    }catch(err){
+        res.json(err);
+    }
+
+});
+
+router.post('/login', (req, res)=>{
+    
+    User.findOne({email: req.body.email}, (err, user)=>{
+        try{
+            if(!user){
+                res.status(401).send('invalid email');
+            }else if(user.password !== req.body.password){
+                res.status(401).send('invalid password');
+            }else{
+                res.status(200).send(user);
+            }
+        }catch(err){
+            console.log(err);
+        }
+    });
+});
+
+module.exports = router;
